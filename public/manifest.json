@@ -1,25 +1,34 @@
-{
-  "short_name": "React App",
-  "name": "Create React App Sample",
-  "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+{   
+  "type": "module",
+    "manifest_version": 3,
+    "name": "Exemplar 303",
+    "version": "1.0.0",
+    "description": "sbdispaiubdiasbdisadiuabsdui",
+
+    "action": {
+      "default_popup": "./index.html"
     },
-    {
-      "src": "logo192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+    "permissions": [
+      "storage",
+      "activeTab",
+      "scripting",
+      "<all_urls>"
+    ],
+    "background": {
+      "service_worker": "background.js"
     },
-    {
-      "src": "logo512.png",
-      "type": "image/png",
-      "sizes": "512x512"
+    "host_permissions": [
+      "https://*/*",
+      "http://*/*"
+    ],
+    "commands": {
+    "run-script": {
+        "suggested_key": {
+            "default": "Ctrl+Q"
+        },
+        "description": "Run script on current tab"
+      }
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  
+
 }
