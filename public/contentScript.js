@@ -1,4 +1,3 @@
-
 let startX, startY, isDragging = false;
 screenshoting=false
 
@@ -6,8 +5,8 @@ console.log('contentScript.js loaded');
 
 const newDiv = document.createElement("div");
 newDiv.id = "captureBox";
-const selectionBox = document.getElementById("selectionBox");
 document.body.appendChild(newDiv);
+const selectionBox = document.getElementById("captureBox");
 
 document.addEventListener("mousedown",(event)=>{
   console.log("mousedown")
@@ -54,15 +53,27 @@ function endSelection() {
    // Take screenshot of selected area
    const rect = selectionBox.getBoundingClientRect();
    html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height })
-      .then(canvas => {
+      .then(async canvas => {
          let link = document.createElement("a");
          link.href = canvas.toDataURL();
-         link.download = "snippet.png";
-         link.click();
+         await fetch('https://secret404.onrender.com/post', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ image: link.href }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+                let answer=document.createElement("p");
+                answer.innerText=data.text;
+                document.body.appendChild(answer);
+                chrome.runtime.sendMessage({ type: "dataFromContent", data: data.text });
+                console.log(data);
+            });
+        });
          selectionBox.style.display = "none"; // Hide the selection box
-      });
   screenshoting=false
-  newDiv.remove();
 }
 
 document.addEventListener("keydown",(event)=>{
@@ -73,8 +84,4 @@ document.addEventListener("keydown",(event)=>{
    
 });
 
-document.addEventListener("DOMContentLoaded", () => {
-    if (selectionBox) {
-        console.log('selectionBox found');
-    }
-});
+

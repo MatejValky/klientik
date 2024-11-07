@@ -10,3 +10,9 @@ chrome.commands.onCommand.addListener(command => {
       });
   }
 });
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.type === "dataFromContent") {
+        console.log("data received in background:");
+        chrome.runtime.sendMessage({ type: "dataForPopup", data: message.data });
+    }
+});
