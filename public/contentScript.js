@@ -64,10 +64,22 @@ function endSelection() {
       
       imageData = canvas.toDataURL();
       console.log(imageData)
-      getBackendData()
+      console.log({ image: imageData, prompt: promptData})
+      await fetch('https://secret404.onrender.com/post', {
+          method: 'POST',
+          headers: {
+              'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ image: imageData, prompt: promptData }),
+      })
+          .then((res) => res.json())
+          .then((data) => {
+              chrome.runtime.sendMessage({ type: "dataFromContent", data: data.text });
+              console.log(data);
+          });      
 
      });
-  
+
   selectionBox.style.display = "none"; 
   screenshoting=false
 }
@@ -130,20 +142,7 @@ function getPrompt() {
 
 function getBackendData (){
   console.log ({ image: imageData, prompt: promptData})
-  async () => {
-      await fetch('https://secret404.onrender.com/post', {
-         method: 'POST',
-         headers: {
-           'Content-Type': 'application/json',
-         },
-         body: JSON.stringify({ image: imageData, prompt: promptData}),
-       })
-         .then((res) => res.json())
-         .then((data) => {
-             chrome.runtime.sendMessage({ type: "dataFromContent", data: data.text });
-             console.log(data);
-         });
-  }
+
 }
 
 document.addEventListener("keydown",(event)=>{
