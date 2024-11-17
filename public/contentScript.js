@@ -1,5 +1,10 @@
 let startX, startY, isDragging = false;
 screenshoting=false
+let offsetX, offsetY;
+let promptDragging = false;
+let imageData=""
+let promptData=""
+/*chrome*/
 
 console.log('contentScript.js loaded');
 
@@ -7,6 +12,8 @@ const newDiv = document.createElement("div");
 newDiv.id = "captureBox";
 document.body.appendChild(newDiv);
 const selectionBox = document.getElementById("captureBox");
+
+
 
 document.addEventListener("mousedown",(event)=>{
   console.log("mousedown")
@@ -45,7 +52,7 @@ function resizeSelection(e) {
 }
 
 function endSelection() {
-    console.log("endSelection")
+  console.log("endSelection")
    isDragging = false;
    document.body.removeEventListener("mousemove", resizeSelection);
    document.body.removeEventListener("mouseup", endSelection);
@@ -53,32 +60,95 @@ function endSelection() {
    // Take screenshot of selected area
    const rect = selectionBox.getBoundingClientRect();
    html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height })
-      .then(async canvas => {
-         let link = document.createElement("a");
-         link.href = canvas.toDataURL();
-         await fetch('https://secret404.onrender.com/post', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ image: link.href }),
-          })
-            .then((res) => res.json())
-            .then((data) => {
-                let answer=document.createElement("p");
-                answer.innerText=data.text;
-                document.body.appendChild(answer);
-                chrome.runtime.sendMessage({ type: "dataFromContent", data: data.text });
-                console.log(data);
-            });
-        });
-         selectionBox.style.display = "none"; // Hide the selection box
+   .then(async canvas => {
+      
+      imageData = canvas.toDataURL();
+      console.log(imageData)
+      getBackendData()
+
+     });
+  
+  selectionBox.style.display = "none"; 
   screenshoting=false
+}
+function getPrompt() {
+  return new Promise((resolve) => {
+    const prompt = document.createElement("div");
+    prompt.className = "prompt";
+    prompt.innerHTML = `
+        <div class="form"  >
+            <label for="search">
+                <input name="prompt" class="input" type="text" required="" placeholder="Write your prompt" id="search">
+                <div class="fancy-bg"></div>
+                <div class="search">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" class="r-14j79pv r-4qtqp9 r-yyyyoo r-1xvli5t r-dnmrzs r-4wgw6l r-f727ji r-bnwqim r-1plcrui r-lrvibr">
+                        <g>
+                            <path d="M21.53 20.47l-3.66-3.66C19.195 15.24 20 13.214 20 11c0-4.97-4.03-9-9-9s-9 4.03-9 9 4.03 9 9 9c2.215 0 4.24-.804 5.808-2.13l3.66 3.66c.147.146.34.22.53.22s.385-.073.53-.22c.295-.293.295-.767.002-1.06zM3.5 11c0-4.135 3.365-7.5 7.5-7.5s7.5 3.365 7.5 7.5-3.365 7.5-7.5 7.5-7.5-3.365-7.5-7.5z"></path>
+                        </g>
+                    </svg>
+                </div>
+                <button class="close-btn" type="reset">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </label>
+        </div>
+    `;
+    
+    document.body.appendChild(prompt);
+    const inputArea = document.body.querySelector(".form");
+    inputArea.addEventListener("mousedown", (e) => {
+      console.log("mousedownprompt")
+      promptDragging = true;
+      offsetX = e.clientX - inputArea.offsetLeft;
+      offsetY = e.clientY - inputArea.offsetTop;
+
+    });
+    
+    document.addEventListener("mousemove", (e) => {
+      if (promptDragging ) {
+        inputArea.style.left = `${e.clientX - offsetX}px`;
+        inputArea.style.top = `${e.clientY - offsetY}px`;
+      }
+    });
+    
+    document.addEventListener("mouseup", () => {
+      promptDragging = false;
+    });
+    if(document.body.querySelector(".input")){
+      console.log("input")
+      document.body.querySelector(".input").addEventListener("keydown",(event)=>{
+        if(event.key==="Enter"){
+          promptData=document.body.querySelector(".input").value
+          console.log(promptData)
+          screenshoting=true
+        }
+    })}
+  });
+}
+
+function getBackendData (){
+  console.log ({ image: imageData, prompt: promptData})
+  async () => {
+      await fetch('https://secret404.onrender.com/post', {
+         method: 'POST',
+         headers: {
+           'Content-Type': 'application/json',
+         },
+         body: JSON.stringify({ image: imageData, prompt: promptData}),
+       })
+         .then((res) => res.json())
+         .then((data) => {
+             chrome.runtime.sendMessage({ type: "dataFromContent", data: data.text });
+             console.log(data);
+         });
+  }
 }
 
 document.addEventListener("keydown",(event)=>{
     if((event.ctrlKey || event.metaKey) && event.key === "`"){
-        screenshoting=true
+        getPrompt()
         console.log("keydown")
     }
    
