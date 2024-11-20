@@ -1,7 +1,8 @@
 let startX, startY, isDragging = false;
 screenshoting=false
-let offsetX, offsetY;
+let offsetXInput, offsetYInput,offsetYCard,offsetXCard;
 let promptDragging = false;
+let cardDragging = false;
 let imageData=""
 let promptData=""
 /*chrome*/
@@ -74,8 +75,53 @@ function endSelection() {
       })
           .then((res) => res.json())
           .then((data) => {
-              chrome.runtime.sendMessage({ type: "dataFromContent", data: data.text });
-              console.log(data);
+              const card = document.createElement("div");
+              card.style.position = "absolute";
+              card.innerHTML=`
+                    <div class="card"><span id="answer">ANSWER:</span>
+                      <div id="typing-effect"></div>
+                      <div class="card-footer">Made With Love &lt;3</div>
+                    </div>
+              `
+              document.body.appendChild(card);
+              const cardAnswers = document.querySelector(".card");
+              const text = `${data.text}`;
+  
+              const typingEffectElement = document.getElementById("typing-effect");
+              let index = 0;
+  
+            function type() {
+              if (index < text.length) {
+              typingEffectElement.textContent += text.charAt(index);
+              index++;
+  
+              const delay = text.charAt(index - 1) === "\n" ? 100 : 30;
+              setTimeout(type, delay);
+              }
+            }
+  
+            type();
+            card.addEventListener("mousedown", (e) => {
+              console.log("mousedowncard")
+              cardDragging = true;
+              offsetXCard = e.clientX - card.offsetLeft;
+              offsetYCard = e.clientY - card.offsetTop;
+            });
+
+            document.addEventListener("mousemove", (e) => {
+
+              if (cardDragging ) {
+                console.log("cardDragging")
+                card.style.left = `${e.clientX - offsetXCard}px`;
+                card.style.top = `${e.clientY - offsetYCard}px`;
+                console.log(e.clientX,e.clientY.offsetXCard)
+              }
+            });
+
+            document.addEventListener("mouseup", () => {
+              console.log("mouseupcard")
+              cardDragging = false;
+            });
           });      
 
      });
@@ -113,15 +159,15 @@ function getPrompt() {
     inputArea.addEventListener("mousedown", (e) => {
       console.log("mousedownprompt")
       promptDragging = true;
-      offsetX = e.clientX - inputArea.offsetLeft;
-      offsetY = e.clientY - inputArea.offsetTop;
+      offsetXInput = e.clientX - inputArea.offsetLeft;
+      offsetYInput = e.clientY - inputArea.offsetTop;
 
     });
     
     document.addEventListener("mousemove", (e) => {
       if (promptDragging ) {
-        inputArea.style.left = `${e.clientX - offsetX}px`;
-        inputArea.style.top = `${e.clientY - offsetY}px`;
+        inputArea.style.left = `${e.clientX - offsetXInput}px`;
+        inputArea.style.top = `${e.clientY - offsetYInput}px`;
       }
     });
     
@@ -144,6 +190,9 @@ function getBackendData (){
   console.log ({ image: imageData, prompt: promptData})
 
 }
+
+
+
 
 document.addEventListener("keydown",(event)=>{
     if((event.ctrlKey || event.metaKey) && event.key === "`"){

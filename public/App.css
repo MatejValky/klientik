@@ -120,3 +120,56 @@ input:-webkit-autofill:active {
   -webkit-transition: "color 9999s ease-out, background-color 9999s ease-out";
   -webkit-transition-delay: 9999s;
 }
+
+.card_div{
+  font: 1em/1.618 Inter, sans-serif;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 100vh;
+  padding: 30px;
+  margin: 0;
+
+  color: #224;
+}
+
+.card {
+  position: absolute;
+  min-width: 500px;
+  max-width: 600px ;
+  height: auto;
+  padding: 25px;
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  background-color: rgba(255, 255, 255, 0.45);
+  box-shadow: 0 0 10px 1px rgba(0, 0, 0, 0.25);
+
+  backdrop-filter: blur(15px);
+  isolation: isolate;
+  z-index: 100;
+}
+
+#typing-effect {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1em;
+  white-space: pre-wrap;
+  overflow: hidden;
+}
+
+.card-footer {
+  font-size: 0.65em;
+  color: rgb(200, 200, 200);
+  margin-bottom: -20px;
+  text-align: right;
+}
+
+#answer {
+  font-family: "Courier New", Courier, monospace;
+  font-size: 1.1em;
+  white-space: pre-wrap;
+  overflow: hidden;
+  color: #000;
+}
