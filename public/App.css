@@ -34,10 +34,10 @@
   position: absolute;
   isolation: isolate;
   z-index: 100;
+  cursor: move;
 
   
 }
-
 .fancy-bg {
   position: absolute;
   width: 100%;
@@ -49,7 +49,6 @@
   pointer-events: none;
   box-shadow: rgba(0, 0, 0, 0.16) 0px 1px 4px;
 }
-/* label styling */
 label {
   width: 100%;
   padding: 0.8em;
@@ -58,21 +57,17 @@ label {
   display: flex;
   align-items: center;
 }
-
 .search,.close-btn {
   position: absolute;
 }
-/* styling search-icon */
 .search {
   fill: var(--text-color);
   left: var(--inline-padding-of-input);
 }
-/* svg -- size */
 svg {
   width: 17px;
   display: block;
 }
-/* styling of close button */
 .close-btn {
   border: none;
   right: var(--inline-padding-of-input);
@@ -88,7 +83,6 @@ svg {
   background: var(--active-color);
   opacity: 0;
 }
-/* styling of input */
 .input {
   color: var(--input-text-color);
   width: 100%;
@@ -107,12 +101,10 @@ svg {
 .input::placeholder {
   color: var(--text-color)
 }
-/* showing close button when typing */
 .input:valid ~ .close-btn {
   opacity: 1;
   visibility: visible;
 }
-/* this is for the default background in input,when selecting autofill options -- you can remove this code if you do not want to override the browser style.  */
 input:-webkit-autofill,
 input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,

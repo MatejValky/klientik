@@ -17,18 +17,11 @@ const selectionBox = document.getElementById("captureBox");
 
 
 document.addEventListener("mousedown",(event)=>{
-  console.log("mousedown")
-
   if(screenshoting){
-    console.log("screenshoting")
-
     startSelection(event)
 }});
 
 function startSelection(e) {
-    console.log("startSelection")
-
-
    startX = e.clientX;
    startY = e.clientY;
    selectionBox.style.left = `${startX}px`;
@@ -42,7 +35,6 @@ function startSelection(e) {
 }
 
 function resizeSelection(e) {
-    console.log("resizeSelection")
    if (!isDragging) return;
    const width = e.clientX - startX;
    const height = e.clientY - startY;
@@ -53,19 +45,15 @@ function resizeSelection(e) {
 }
 
 function endSelection() {
-  console.log("endSelection")
    isDragging = false;
    document.body.removeEventListener("mousemove", resizeSelection);
    document.body.removeEventListener("mouseup", endSelection);
 
-   // Take screenshot of selected area
+
    const rect = selectionBox.getBoundingClientRect();
    html2canvas(document.body, { x: rect.left, y: rect.top, width: rect.width, height: rect.height })
-   .then(async canvas => {
-      
+   .then(async canvas => { 
       imageData = canvas.toDataURL();
-      console.log(imageData)
-      console.log({ image: imageData, prompt: promptData})
       await fetch('https://secret404.onrender.com/post', {
           method: 'POST',
           headers: {
@@ -77,14 +65,14 @@ function endSelection() {
           .then((data) => {
               const card = document.createElement("div");
               card.style.position = "absolute";
+              card.style.cursor = "move";
               card.innerHTML=`
                     <div class="card"><span id="answer">ANSWER:</span>
                       <div id="typing-effect"></div>
                       <div class="card-footer">Made With Love &lt;3</div>
                     </div>
               `
-              document.body.appendChild(card);
-              const cardAnswers = document.querySelector(".card");
+              document.body.prepend(card);
               const text = `${data.text}`;
   
               const typingEffectElement = document.getElementById("typing-effect");
@@ -102,7 +90,6 @@ function endSelection() {
   
             type();
             card.addEventListener("mousedown", (e) => {
-              console.log("mousedowncard")
               cardDragging = true;
               offsetXCard = e.clientX - card.offsetLeft;
               offsetYCard = e.clientY - card.offsetTop;
@@ -111,15 +98,12 @@ function endSelection() {
             document.addEventListener("mousemove", (e) => {
 
               if (cardDragging ) {
-                console.log("cardDragging")
                 card.style.left = `${e.clientX - offsetXCard}px`;
                 card.style.top = `${e.clientY - offsetYCard}px`;
-                console.log(e.clientX,e.clientY.offsetXCard)
               }
             });
 
             document.addEventListener("mouseup", () => {
-              console.log("mouseupcard")
               cardDragging = false;
             });
           });      
@@ -154,14 +138,12 @@ function getPrompt() {
         </div>
     `;
     
-    document.body.appendChild(prompt);
+    document.body.prepend(prompt);
     const inputArea = document.body.querySelector(".form");
     inputArea.addEventListener("mousedown", (e) => {
-      console.log("mousedownprompt")
       promptDragging = true;
       offsetXInput = e.clientX - inputArea.offsetLeft;
       offsetYInput = e.clientY - inputArea.offsetTop;
-
     });
     
     document.addEventListener("mousemove", (e) => {
@@ -175,31 +157,19 @@ function getPrompt() {
       promptDragging = false;
     });
     if(document.body.querySelector(".input")){
-      console.log("input")
       document.body.querySelector(".input").addEventListener("keydown",(event)=>{
         if(event.key==="Enter"){
           promptData=document.body.querySelector(".input").value
-          console.log(promptData)
           screenshoting=true
         }
     })}
   });
 }
 
-function getBackendData (){
-  console.log ({ image: imageData, prompt: promptData})
-
-}
-
-
-
-
 document.addEventListener("keydown",(event)=>{
     if((event.ctrlKey || event.metaKey) && event.key === "`"){
         getPrompt()
-        console.log("keydown")
     }
-   
 });
 
 
